@@ -3,10 +3,9 @@ Modern library for Japanese postal code to address.
 [日本語の補足はこちら](#-補足)。
 
 ## Features
-- Simple usage with compatibility for modern frameworks
-- Typescript support
-- No dependencies
-- Self-hosted & dynamic import (no implicit API calls)
+⚡ Simple usage with compatibility for modern frameworks <br />
+⚡ No dependencies <br />
+⚡ Self-hosted & dynamic import (no implicit API calls)
 
 ## Installation
 ```bash
