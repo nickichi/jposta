@@ -1,0 +1,32 @@
+{
+	"name": "jposta",
+	"description": "Library for Japanese postal code to address.Typescript ready, React friendly, without any dependencies.",
+	"license": "MIT",
+	"version": "0.0.1",
+	"type": "module",
+	"files": ["dist", "index.d.ts"],
+	"main": "./dist/index.js",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		"types": "./dist/index.d.ts",
+		"import": "./dist/index.js"
+	},
+	"keywords": ["jposta", "zipcode", "postal-code", "jp"],
+	"scripts": {
+		"test": "vitest",
+		"build": "tsc && vite build",
+		"parse-csv": "cd ./data && mkdir -p zips && rm ./zips/*.json && tsx ./parse.ts && cp -f ./zips/*.json ../lib/zips"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.8.1",
+		"csv-parse": "^5.5.6",
+		"tsx": "^4.15.4",
+		"typescript": "^5.4.5",
+		"vite": "^5.2.10",
+		"vite-plugin-dts": "^3.9.1",
+		"vitest": "^1.6.0"
+	},
+	"homepage": "",
+	"author": "taichika"
+}
