@@ -1,6 +1,6 @@
 # jposta
 Modern library for Japanese postal code to address.
-[日本語の補足はこちら](## 補足)。
+日本語の補足は最下部にあります。
 
 ## Features
 ⚡ Simple usage with compatibility for modern frameworks <br />
