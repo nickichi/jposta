@@ -67,7 +67,8 @@ const result3 = getAddress('1000003');
 WIP
 
 ## Samples
-WIP
+Vite + React + jposta ([source code](https://github.com/nickichi/vite-react-jposta)):
+https://nickichi.github.io/vite-react-jposta/
 
 ## License
 see [LICENSE](./LICENSE)
