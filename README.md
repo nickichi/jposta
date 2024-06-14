@@ -27,7 +27,7 @@ console.log(address2);
 // { pref: "東京都", prefNum: 13, city: "千代田区", town: "皇居外苑" }
 ```
 
-## Dynamic Import
+## Dynamic Import (Browser)
 jposta needs to host the data file on your project.
 
 ```bash
@@ -62,12 +62,17 @@ const result3 = getAddress('1000003');
 // then return data without additional import
 ```
 
+## Compatibility
+ESM only
+
 ## Configuration
 WIP
 
 ## Samples
-Vite + React + jposta ([source code](https://github.com/nickichi/vite-react-jposta)):
+- Vite + React + jposta ([source code](https://github.com/nickichi/vite-react-jposta)):
 https://nickichi.github.io/vite-react-jposta/
+- Next.js(webpack) + jposta ([source code](https://github.com/nickichi/nextjs-jposta)): https://nickichi.github.io/nextjs-jposta/
+- Node.js + Express + jposta: https://github.com/nickichi/node-express-jposta
 
 ## License
 see [LICENSE](./LICENSE)
@@ -77,3 +82,4 @@ see [LICENSE](./LICENSE)
 ## 補足
 - 郵便番号と住所は、[日本郵便株式会社の郵便番号データ](https://www.post.japanpost.jp/zipcode/download.html)を利用しています
 - このライブラリは self-hosted な郵便番号検索を提供するために作成されました。外部APIを使用せず、バックエンドも不要です。ただし、ホストするアセットが100増えます。
+- クライアントサイドでのDynamic Importを利用したくない場合は、サーバサイド（Node.js）に導入することで、簡単に郵便番号APIを構築できます(Samples参照)。
