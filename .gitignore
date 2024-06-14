@@ -1,3 +1,7 @@
+# dev files
+data/zips
+.idea
+
 # Logs
 logs
 *.log
