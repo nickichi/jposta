@@ -14,7 +14,7 @@
 	},
 	"keywords": ["jposta", "zipcode", "postal-code", "jp"],
 	"scripts": {
-		"test": "vitest",
+		"test": "vitest --run",
 		"build": "tsc && vite build",
 		"parse-csv": "cd ./data && mkdir -p zips && rm ./zips/*.json && tsx ./parse.ts && cp -f ./zips/*.json ../lib/zips"
 	},
