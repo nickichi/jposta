@@ -37,7 +37,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add utf_ken_all.csv
+          git add .
           git commit -m "Update zipcode data"
 
       - name: Update package.json minor version if changed
