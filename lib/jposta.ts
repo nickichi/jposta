@@ -62,7 +62,7 @@ export type Address = {
 	pref: string;
 	prefNum: number;
 	city: string;
-	town?: string;
+	area?: string;
 };
 
 export const getAddress = async (zipCode: string): Promise<Address | null> => {
@@ -77,20 +77,20 @@ export const getAddress = async (zipCode: string): Promise<Address | null> => {
 	}
 
 	const zip = zipCode.replace("-", "");
-	const area = zip.slice(0, 2);
-	const json = await fetchJson(area);
+	const group = zip.slice(0, 2);
+	const json = await fetchJson(group);
 
 	if (!json || !json[zip]) {
 		return null;
 	}
 
-	const [prefNum, city, town] = json[zip];
+	const [prefNum, city, area] = json[zip];
 	const pref = prefs[prefNum - 1];
 
 	if (
 		typeof prefNum !== "number" ||
 		typeof city !== "string" ||
-		typeof town !== "string" ||
+		typeof area !== "string" ||
 		typeof pref !== "string"
 	) {
 		throw new Error(`Internal error data broken: ${json[zip]}`);
@@ -100,7 +100,7 @@ export const getAddress = async (zipCode: string): Promise<Address | null> => {
 		pref: pref,
 		prefNum: prefNum,
 		city: city,
-		town: town || undefined,
+		area: area || undefined,
 	};
 };
 

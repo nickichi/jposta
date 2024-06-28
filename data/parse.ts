@@ -30,13 +30,13 @@ const parseCsv = () => {
 		const zip = record[2];
 		const pref = record[6];
 		const city = record[7];
-		const rawTown = record[8].replace(/（.+）/g, "");
+		const rawArea = record[8].replace(/（.+）/g, "");
 
-		const town =
-			rawTown.includes("以下に掲載がない場合") ||
-			rawTown.includes("番地がくる場合")
+		const area =
+			rawArea.includes("以下に掲載がない場合") ||
+			rawArea.includes("番地がくる場合")
 				? ""
-				: rawTown;
+				: rawArea;
 
 		const prefNum = Number.parseInt(code.slice(0, 2));
 		if (!pref) {
@@ -66,7 +66,7 @@ const parseCsv = () => {
 			continue;
 		}
 
-		chunk.data[zip] = [prefNum, city, town];
+		chunk.data[zip] = [prefNum, city, area];
 	}
 
 	// write the last chunk

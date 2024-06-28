@@ -19,12 +19,12 @@ import { getAddress } from 'jposta';
 // pass zip code as string
 const address = getAddress('1000001');
 console.log(address);
-// { pref: "東京都", prefNum: 13, city: "千代田区", town: "千代田" }
+// { pref: "東京都", prefNum: 13, city: "千代田区", area: "千代田" }
 
 // also you can pass zip code with hyphen
 const address2 = getAddress('100-0003');
 console.log(address2);
-// { pref: "東京都", prefNum: 13, city: "千代田区", town: "皇居外苑" }
+// { pref: "東京都", prefNum: 13, city: "千代田区", area: "皇居外苑" }
 ```
 
 ## Dynamic Import (Browser)
