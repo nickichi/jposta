@@ -52,18 +52,12 @@ jobs:
               core.setOutput('existing_pr', 'false');
             }
 
-      - name: Exit if existing PR found
-        if: steps.check-pr.outputs.existing_pr == 'true'
-        run: |
-          echo "Existing update PR found. Skipping further steps."
-          exit 0
-
       - name: Parse CSV if changed
-        if: steps.git-check.outputs.changes == 'true'
+        if: steps.git-check.outputs.changes == 'true' && steps.check-pr.outputs.existing_pr != 'true'
         run: yarn parse-csv
 
       - name: Commit CSV changes
-        if: steps.git-check.outputs.changes == 'true'
+        if: steps.git-check.outputs.changes == 'true' && steps.check-pr.outputs.existing_pr != 'true'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
@@ -71,13 +65,13 @@ jobs:
           git commit -m "Update zipcode data"
 
       - name: Update package.json minor version if changed
-        if: steps.git-check.outputs.changes == 'true'
+        if: steps.git-check.outputs.changes == 'true' && steps.check-pr.outputs.existing_pr != 'true'
         run: |
           npm version minor -m "Bump minor version to %s due to CSV update"
           echo "NEW_VERSION=$(npm pkg get version | tr -d '"')" >> $GITHUB_ENV
 
       - name: Create Pull Request if changed
-        if: steps.git-check.outputs.changes == 'true'
+        if: steps.git-check.outputs.changes == 'true' && steps.check-pr.outputs.existing_pr != 'true'
         uses: peter-evans/create-pull-request@v6
         with:
           commit-message: Update CSV data and bump minor version
