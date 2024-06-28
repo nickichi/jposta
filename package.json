@@ -20,7 +20,7 @@
 	"scripts": {
 		"test": "vitest --run",
 		"build": "tsc && vite build",
-		"parse-csv": "cd ./data && mkdir -p zips && rm ./zips/*.json && tsx ./parse.ts && cp -f ./zips/*.json ../lib/zips",
+		"parse-csv": "cd ./data && mkdir -p zips && rm -f ./zips/*.json && tsx ./parse.ts && cp -f ./zips/*.json ../lib/zips",
 		"update-csv": "cd ./data && ./update.sh"
 	},
 	"devDependencies": {
