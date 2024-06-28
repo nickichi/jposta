@@ -18,8 +18,34 @@ jobs:
       - run: npm ci
       - run: npm test
 
+  check-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.set-version.outputs.VERSION }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - id: set-version
+        run: |
+          RELEASE_VERSION=$(echo $GITHUB_REF | sed 's/refs\/tags\///')
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          # remove the v from the tag
+          if [ "${RELEASE_VERSION:0:1}" == "v" ]; then
+              RELEASE_VERSION="${RELEASE_VERSION:1}"
+          fi
+          # check
+          if [ "$RELEASE_VERSION" != "$PACKAGE_VERSION" ]; then
+              echo "The package version ($PACKAGE_VERSION) does not match the release tag ($RELEASE_VERSION)"
+              exit 1
+          fi
+          # outputs version
+          echo "VERSION=${PACKAGE_VERSION}" >> $GITHUB_OUTPUT
+          
+
   publish-npm:
-    needs: build
+    needs: check-version
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -28,6 +54,13 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org/
       - run: npm ci && npm run build
-      - run: npm publish
+      - name: Publish to NPM Packages
+        run: |
+          VERSION=${{ needs.check-version.outputs.version }}
+          if [[ "$VERSION" == *"beta"* ]]; then
+            npm publish --tag beta
+          else
+            npm publish
+          fi
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
