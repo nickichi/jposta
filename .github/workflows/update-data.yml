@@ -31,6 +31,27 @@ jobs:
         run: |
           git diff --exit-code utf_ken_all.csv || echo "changes=true" >> $GITHUB_OUTPUT
 
+      - name: Check for existing PR
+        if: steps.git-check.outputs.changes == 'true'
+        uses: actions/github-script@v6
+        id: check-pr
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const prs = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              head: 'update-zipcode-data-'
+            });
+            if (prs.data.length > 0) {
+              console.log('Existing PR found. Exiting workflow.');
+              core.setOutput('existing_pr', 'true');
+            } else {
+              console.log('No existing PR found. Proceeding with update.');
+              core.setOutput('existing_pr', 'false');
+            }
+
       - name: Parse CSV if changed
         if: steps.git-check.outputs.changes == 'true'
         run: yarn parse-csv
