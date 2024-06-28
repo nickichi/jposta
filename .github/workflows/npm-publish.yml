@@ -45,7 +45,7 @@ jobs:
           
 
   publish-npm:
-    needs: check-version
+    needs: [build, check-version]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
