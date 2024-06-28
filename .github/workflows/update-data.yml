@@ -52,6 +52,12 @@ jobs:
               core.setOutput('existing_pr', 'false');
             }
 
+      - name: Exit if existing PR found
+        if: steps.check-pr.outputs.existing_pr == 'true'
+        run: |
+          echo "Existing update PR found. Skipping further steps."
+          exit 0
+
       - name: Parse CSV if changed
         if: steps.git-check.outputs.changes == 'true'
         run: yarn parse-csv
