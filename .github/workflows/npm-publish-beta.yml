@@ -25,7 +25,6 @@ jobs:
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org/
-      - run: npm version prerelease --preid beta --no-git-tag-version
       - run: npm ci && npm run build
       - run: npm publish --tag beta
         env:
