@@ -32,6 +32,14 @@ jobs:
         if: steps.git-check.outputs.changes == 'true'
         run: yarn parse-csv
 
+      - name: Commit CSV changes
+        if: steps.git-check.outputs.changes == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add utf_ken_all.csv
+          git commit -m "Update zipcode data"
+
       - name: Update package.json minor version if changed
         if: steps.git-check.outputs.changes == 'true'
         run: |
