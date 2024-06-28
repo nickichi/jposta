@@ -63,7 +63,8 @@ const result3 = getAddress('1000003');
 ```
 
 ## Compatibility
-ESM only
+ESM & CJS compatible.
+ESM is recommended.
 
 ## Configuration
 WIP
