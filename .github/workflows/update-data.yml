@@ -21,10 +21,10 @@ jobs:
         run: echo "TODAY=$(date +'%Y%m%d')" >> $GITHUB_ENV
 
       - name: Install dependencies
-        run: yarn install
+        run: npm install
 
       - name: Update CSV
-        run: yarn update-csv
+        run: npm run update-csv
 
       - name: Check for changes
         id: git-check
@@ -54,7 +54,7 @@ jobs:
 
       - name: Parse CSV if changed
         if: steps.git-check.outputs.changes == 'true' && steps.check-pr.outputs.existing_pr != 'true'
-        run: yarn parse-csv
+        run: npm run parse-csv
 
       - name: Commit CSV changes
         if: steps.git-check.outputs.changes == 'true' && steps.check-pr.outputs.existing_pr != 'true'
