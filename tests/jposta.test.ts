@@ -71,7 +71,7 @@ test.each`
 	${"907-1801"} | ${"沖縄県八重山郡与那国町与那国"}
 `("getAddress($zipCode) returns $expected", async ({ zipCode, expected }) => {
 	const address = await getAddress(zipCode);
-	expect(`${address?.pref}${address?.city}${address?.town || ""}`).toEqual(
+	expect(`${address?.pref}${address?.city}${address?.area || ""}`).toEqual(
 		expected,
 	);
 });
