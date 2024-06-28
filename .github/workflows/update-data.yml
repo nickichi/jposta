@@ -17,6 +17,9 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Set current date
+        run: echo "TODAY=$(date +'%Y%m%d')" >> $GITHUB_ENV
+
       - name: Install dependencies
         run: yarn install
 
@@ -51,11 +54,11 @@ jobs:
         uses: peter-evans/create-pull-request@v6
         with:
           commit-message: Update CSV data and bump minor version
-          title: Update CSV data to ${{ env.NEW_VERSION }}
+          title: Update CSV data to ${{ env.NEW_VERSION }} ${{ env.TODAY }}
           body: |
             This PR updates the CSV data and bumps the minor version.
             - Updated utf_ken_all.csv
             - Parsed new CSV data
             - Bumped minor version to ${{ env.NEW_VERSION }}
-          branch: update-csv-data
+          branch: update-zipcode-data-${{ env.TODAY }}
           delete-branch: true
