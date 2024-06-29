@@ -2,9 +2,12 @@
 	"name": "jposta",
 	"description": "Library for Japanese postal code to address.Typescript ready, React friendly, without any dependencies.",
 	"license": "MIT",
-	"version": "0.3.1",
+	"version": "0.3.2",
 	"type": "module",
-	"files": ["dist", "index.d.ts"],
+	"files": [
+		"dist",
+		"index.d.ts"
+	],
 	"main": "./dist/index.cjs",
 	"module": "./dist/index.js",
 	"types": "./dist/index.d.ts",
@@ -16,7 +19,12 @@
 			"default": "./dist/index.js"
 		}
 	},
-	"keywords": ["jposta", "zipcode", "postal-code", "jp"],
+	"keywords": [
+		"jposta",
+		"zipcode",
+		"postal-code",
+		"jp"
+	],
 	"scripts": {
 		"test": "vitest --run",
 		"build": "tsc && vite build",
@@ -33,5 +41,12 @@
 		"vitest": "^1.6.0"
 	},
 	"homepage": "https://github.com/nickichi/jposta",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/nickichi/jposta.git"
+	},
+	"bugs": {
+		"url": "https://github.com/nickichi/jposta/issues"
+	},
 	"author": "taichika"
 }
