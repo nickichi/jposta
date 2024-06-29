@@ -17,12 +17,12 @@ $ npm install jposta
 import { getAddress } from 'jposta';
 
 // pass zip code as string
-const address = getAddress('1000001');
+const address = await getAddress('1000001');
 console.log(address);
 // { pref: "東京都", prefNum: 13, city: "千代田区", area: "千代田" }
 
 // also you can pass zip code with hyphen
-const address2 = getAddress('100-0003');
+const address2 = await getAddress('100-0003');
 console.log(address2);
 // { pref: "東京都", prefNum: 13, city: "千代田区", area: "皇居外苑" }
 ```
@@ -54,11 +54,11 @@ dist/assets/index-D0vWSNxA.js         152.48 kB │ gzip: 49.62 kB
 ...and then you can import the data file dynamically.
 
 ```javascript
-const result1 = getAddress('1000001');
+const result1 = await getAddress('1000001');
 // then import the data file named like z10.js
-const result2 = getAddress('2100002');
+const result2 = await getAddress('2100002');
 // then import the data file named like z21.js
-const result3 = getAddress('1000003');
+const result3 = await getAddress('1000003');
 // then return data without additional import
 ```
 
