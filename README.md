@@ -4,6 +4,7 @@ Modern library for Japanese postal code to address.
 
 ## Features
 ⚡ Simple usage with compatibility for modern frameworks <br />
+⚡ ES6 / Promise-based <br />
 ⚡ No dependencies <br />
 ⚡ Self-hosted & dynamic import (no implicit API calls)
 
