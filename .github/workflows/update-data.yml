@@ -82,4 +82,6 @@ jobs:
             - Parsed new CSV data
             - Bumped minor version to ${{ env.NEW_VERSION }}
           branch: update-zipcode-data-${{ env.TODAY }}
+          reviewers: |
+            nickichi
           delete-branch: true
