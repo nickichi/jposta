@@ -1,13 +1,10 @@
 {
 	"name": "jposta",
-	"description": "Library for Japanese postal code to address.Typescript ready, React friendly, without any dependencies.",
+	"description": "Library for Japanese postal code to address.ES6, Promise based, Typescript ready, React friendly, without any dependencies.",
 	"license": "MIT",
 	"version": "0.3.2",
 	"type": "module",
-	"files": [
-		"dist",
-		"index.d.ts"
-	],
+	"files": ["dist", "index.d.ts"],
 	"main": "./dist/index.cjs",
 	"module": "./dist/index.js",
 	"types": "./dist/index.d.ts",
@@ -19,12 +16,7 @@
 			"default": "./dist/index.js"
 		}
 	},
-	"keywords": [
-		"jposta",
-		"zipcode",
-		"postal-code",
-		"jp"
-	],
+	"keywords": ["jposta", "zipcode", "postal-code", "jp"],
 	"scripts": {
 		"test": "vitest --run",
 		"build": "tsc && vite build",
