@@ -29,7 +29,7 @@ jobs:
       - name: Check for changes
         id: git-check
         run: |
-          git diff --exit-code utf_ken_all.csv || echo "changes=true" >> $GITHUB_OUTPUT
+          git diff --exit-code utf_ken_all.csv && echo "changes=false" >> $GITHUB_OUTPUT || echo "changes=true" >> $GITHUB_OUTPUT
 
       - name: Check for existing PR
         if: steps.git-check.outputs.changes == 'true'
