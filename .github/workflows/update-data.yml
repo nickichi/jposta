@@ -64,23 +64,23 @@ jobs:
           git add .
           git commit -m "Update zipcode data"
 
-      - name: Update package.json minor version if changed
+      - name: Update package.json patch version if changed
         if: steps.git-check.outputs.changes == 'true' && steps.check-pr.outputs.existing_pr != 'true'
         run: |
-          npm version minor -m "Bump minor version to %s due to CSV update"
+          npm version patch -m "Bump patch version to %s due to CSV update"
           echo "NEW_VERSION=$(npm pkg get version | tr -d '"')" >> $GITHUB_ENV
 
       - name: Create Pull Request if changed
         if: steps.git-check.outputs.changes == 'true' && steps.check-pr.outputs.existing_pr != 'true'
         uses: peter-evans/create-pull-request@v6
         with:
-          commit-message: Update CSV data and bump minor version
+          commit-message: Update CSV data and bump patch version
           title: Update CSV data to ${{ env.NEW_VERSION }} ${{ env.TODAY }}
           body: |
-            This PR updates the CSV data and bumps the minor version.
+            This PR updates the CSV data and bumps the patch version.
             - Updated utf_ken_all.csv
             - Parsed new CSV data
-            - Bumped minor version to ${{ env.NEW_VERSION }}
+            - Bumped patch version to ${{ env.NEW_VERSION }}
           branch: update-zipcode-data-${{ env.TODAY }}
           reviewers: |
             nickichi
