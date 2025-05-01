@@ -2,7 +2,7 @@
 	"name": "jposta",
 	"description": "Library for Japanese postal code to address.ES6, Promise based, Typescript ready, React friendly, without any dependencies.",
 	"license": "MIT",
-	"version": "0.3.11",
+	"version": "0.3.12",
 	"type": "module",
 	"files": [
 		"dist",
