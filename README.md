@@ -1,8 +1,10 @@
-# jposta
-[![npm version](https://badge.fury.io/js/jposta.svg)](https://badge.fury.io/js/jposta)
-[![npm downloads](https://img.shields.io/npm/dm/jposta.svg)](https://www.npmjs.com/package/jposta)
+# jpostal
+[![npm version](https://badge.fury.io/js/jpostal.svg)](https://badge.fury.io/js/jpostal)
+[![npm downloads](https://img.shields.io/npm/dm/jpostal.svg)](https://www.npmjs.com/package/jpostal)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+
+This package is a fork of [jposta](https://github.com/nickichi/jposta) with additional functionality. The main difference is the addition of the `getPrefs()` function to get a list of Japanese prefectures.
 
 Modern library for Japanese postal code to address.
 日本語の補足は最下部にあります。
@@ -22,7 +24,7 @@ $ npm install jpostal
 
 ## Usage
 ```javascript
-import { getAddress, getPrefs } from 'jposta';
+import { getAddress, getPrefs } from 'jpostal';
 
 // pass zip code as string
 const address = await getAddress('1000001');
