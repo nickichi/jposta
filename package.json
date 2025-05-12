@@ -1,5 +1,5 @@
 {
-	"name": "jposta",
+	"name": "jpostal",
 	"description": "Library for Japanese postal code to address.ES6, Promise based, Typescript ready, React friendly, without any dependencies.",
 	"license": "MIT",
 	"version": "0.3.12",
@@ -20,6 +20,7 @@
 		}
 	},
 	"keywords": [
+		"jpostal",
 		"jposta",
 		"zipcode",
 		"postal-code",
@@ -40,13 +41,13 @@
 		"vite-plugin-dts": "^3.9.1",
 		"vitest": "^1.6.1"
 	},
-	"homepage": "https://github.com/nickichi/jposta",
+	"homepage": "https://github.com/xtieume/jposta",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/nickichi/jposta.git"
+		"url": "https://github.com/xtieume/jposta.git"
 	},
 	"bugs": {
-		"url": "https://github.com/nickichi/jposta/issues"
+		"url": "https://github.com/xtieume/jposta/issues"
 	},
 	"author": "taichika"
 }

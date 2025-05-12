@@ -17,7 +17,7 @@ Modern library for Japanese postal code to address.
 
 ## Installation
 ```bash
-$ npm install jposta
+$ npm install jpostal
 ```
 
 ## Usage
