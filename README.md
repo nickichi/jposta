@@ -22,7 +22,7 @@ $ npm install jposta
 
 ## Usage
 ```javascript
-import { getAddress } from 'jposta';
+import { getAddress, getPrefs } from 'jposta';
 
 // pass zip code as string
 const address = await getAddress('1000001');
@@ -33,6 +33,11 @@ console.log(address);
 const address2 = await getAddress('100-0003');
 console.log(address2);
 // { pref: "東京都", prefNum: 13, city: "千代田区", area: "皇居外苑" }
+
+// get list of prefectures
+const prefs = getPrefs();
+console.log(prefs);
+// ["北海道", "青森県", "岩手県", ...]
 ```
 
 ## Dynamic Import (Browser)
