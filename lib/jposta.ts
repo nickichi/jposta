@@ -119,3 +119,7 @@ const fetchJson = async (chunk: string) => {
 export const configureJposta = (config: Partial<JpostaConfig>) => {
 	currentConfig.host = config.host || defaultConfig.host;
 };
+
+export const getPrefs = (): string[] => {
+	return prefs;
+};
