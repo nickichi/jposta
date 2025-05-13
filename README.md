@@ -84,6 +84,29 @@ ESM is recommended.
 ## Configuration
 WIP
 
+## Data Update
+To update the postal code data from Japan Post:
+
+1. Update the CSV file:
+```bash
+npm run update-csv
+```
+This script will download the latest CSV file from Japan Post.
+
+2. Parse the CSV data into JSON files:
+```bash
+npm run parse-csv
+```
+This script will:
+- Create the `zips` directory if it doesn't exist
+- Remove old files in the `zips` directory
+- Parse the CSV file into JSON files
+- Copy the generated JSON files to the `lib/zips` directory
+
+The generated JSON files will have the following format:
+- `z10.json`, `z11.json`, etc. (corresponding to the first two digits of the postal code)
+- Each JSON file contains address data corresponding to the postal codes
+
 ## Samples
 - Vite + React + jposta ([source code](https://github.com/nickichi/vite-react-jposta)):
 https://nickichi.github.io/vite-react-jposta/
