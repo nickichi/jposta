@@ -1,6 +1,8 @@
 import * as fs from "node:fs";
 import { parse } from "csv-parse/sync";
 
+const OUTPUT_DIR = "../lib/zips";
+
 const parseCsv = () => {
 	const file = fs.readFileSync("./utf_ken_all.csv", "utf8");
 	const records = parse(file, {
@@ -12,6 +14,11 @@ const parseCsv = () => {
 		if (a[2] > b[2]) return 1;
 		return 0;
 	});
+
+	// Ensure output directory exists
+	if (!fs.existsSync(OUTPUT_DIR)) {
+		fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+	}
 
 	let count = 0;
 	let chunk: {
@@ -54,7 +61,7 @@ const parseCsv = () => {
 			};
 		}
 		if (chunk.key !== chunkKey) {
-			fs.writeFileSync(`./zips/z${chunk.key}.json`, JSON.stringify(chunk.data));
+			fs.writeFileSync(`${OUTPUT_DIR}/z${chunk.key}.json`, JSON.stringify(chunk.data));
 			chunk.key = "";
 		}
 
@@ -71,7 +78,7 @@ const parseCsv = () => {
 
 	// write the last chunk
 	if (chunk.key !== "") {
-		fs.writeFileSync(`./zips/z${chunk.key}.json`, JSON.stringify(chunk.data));
+		fs.writeFileSync(`${OUTPUT_DIR}/z${chunk.key}.json`, JSON.stringify(chunk.data));
 	}
 
 	console.log(`processed ${count} records.`);

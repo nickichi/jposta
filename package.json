@@ -2,7 +2,7 @@
 	"name": "jpostal",
 	"description": "Library for Japanese postal code to address.ES6, Promise based, Typescript ready, React friendly, without any dependencies.",
 	"license": "MIT",
-	"version": "0.3.15",
+	"version": "0.3.16",
 	"type": "module",
 	"files": [
 		"dist",
@@ -29,7 +29,7 @@
 	"scripts": {
 		"test": "vitest --run",
 		"build": "tsc && vite build",
-		"parse-csv": "cd ./data && mkdir -p zips && rm -f ./zips/*.json && tsx ./parse.ts && cp -f ./zips/*.json ../lib/zips",
+		"parse-csv": "cd ./data && ./update.sh && mkdir -p ../lib/zips && rm -f ../lib/zips/*.json && tsx ./parse.ts",
 		"update-csv": "cd ./data && ./update.sh"
 	},
 	"devDependencies": {
