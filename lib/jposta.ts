@@ -77,23 +77,32 @@ export const getAddress = async (zipCode: string): Promise<Address | null> => {
 	}
 
 	const zip = zipCode.replace("-", "");
+	const zipNum = Number.parseInt(zip, 10);
 	const group = zip.slice(0, 2);
 	const json = await fetchJson(group);
 
-	if (!json || !json[zip]) {
+	if (!json || !json.c || !json.d) {
 		return null;
 	}
 
-	const [prefNum, city, area] = json[zip];
+	const entry = json.d.find(([postalCode]) => postalCode === zipNum);
+	if (!entry) {
+		return null;
+	}
+
+	const [, prefNum, cityIndex, area] = entry;
+	const city = json.c[cityIndex];
 	const pref = prefs[prefNum - 1];
 
 	if (
 		typeof prefNum !== "number" ||
 		typeof city !== "string" ||
-		typeof area !== "string" ||
-		typeof pref !== "string"
+		typeof pref !== "string" ||
+		cityIndex >= json.c.length ||
+		prefNum < 1 ||
+		prefNum > prefs.length
 	) {
-		throw new Error(`Internal error data broken: ${json[zip]}`);
+		throw new Error(`Internal error data broken: ${JSON.stringify(entry)}`);
 	}
 
 	return {
@@ -104,7 +113,12 @@ export const getAddress = async (zipCode: string): Promise<Address | null> => {
 	};
 };
 
-const fetchJson = async (chunk: string) => {
+type CompressedPostalData = {
+	c: string[];
+	d: Array<[number, number, number] | [number, number, number, string]>;
+};
+
+const fetchJson = async (chunk: string): Promise<CompressedPostalData> => {
 	if (currentConfig.host !== "") {
 		const { default: json } = await import(
 			`${currentConfig.host}/z${chunk}.json`
