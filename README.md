@@ -1,42 +1,45 @@
 # jposta
+
 [![npm version](https://badge.fury.io/js/jposta.svg)](https://badge.fury.io/js/jposta)
 [![npm downloads](https://img.shields.io/npm/dm/jposta.svg)](https://www.npmjs.com/package/jposta)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
-Modern library for Japanese postal code to address.
+Modern library for converting Japanese postal codes to addresses.
 日本語の補足は最下部にあります。
 
-
-
 ## Features
+
 ⚡ Simple usage with compatibility for modern frameworks <br />
 ⚡ ES6 / Promise based / Typescript ready <br />
 ⚡ No dependencies <br />
 ⚡ Self-hosted & dynamic import (no implicit API calls)
 
 ## Installation
+
 ```bash
 $ npm install jposta
 ```
 
 ## Usage
+
 ```javascript
-import { getAddress } from 'jposta';
+import { getAddress } from "jposta";
 
 // pass zip code as string
-const address = await getAddress('1000001');
+const address = await getAddress("1000001");
 console.log(address);
 // { pref: "東京都", prefNum: 13, city: "千代田区", area: "千代田" }
 
 // also you can pass zip code with hyphen
-const address2 = await getAddress('100-0003');
+const address2 = await getAddress("100-0003");
 console.log(address2);
 // { pref: "東京都", prefNum: 13, city: "千代田区", area: "皇居外苑" }
 ```
 
 ## Dynamic Import (Browser)
-jposta needs to host the data file on your project.
+
+jposta requires hosting the data file in your project.
 
 ```bash
 # Your project build
@@ -62,33 +65,34 @@ dist/assets/index-D0vWSNxA.js         152.48 kB │ gzip: 49.62 kB
 ...and then you can import the data file dynamically.
 
 ```javascript
-const result1 = await getAddress('1000001');
-// then import the data file named like z10.js
-const result2 = await getAddress('2100002');
-// then import the data file named like z21.js
-const result3 = await getAddress('1000003');
-// then return data without additional import
+const result1 = await getAddress("1000001");
+// imports the data file named z10.js
+const result2 = await getAddress("2100002");
+// imports the data file named z21.js
+const result3 = await getAddress("1000003");
+// returns data without additional imports
 ```
 
 ## Compatibility
+
 ESM & CJS compatible.
 ESM is recommended.
 
-## Configuration
-WIP
-
 ## Samples
+
 - Vite + React + jposta ([source code](https://github.com/nickichi/vite-react-jposta)):
-https://nickichi.github.io/vite-react-jposta/
+  https://nickichi.github.io/vite-react-jposta/
 - Next.js(webpack) + jposta ([source code](https://github.com/nickichi/nextjs-jposta)): https://nickichi.github.io/nextjs-jposta/
 - Node.js + Express + jposta: https://github.com/nickichi/node-express-jposta
 
 ## License
+
 see [LICENSE](./LICENSE)
 
 ---
 
 ## 補足
+
 - 郵便番号と住所は、[日本郵便株式会社の郵便番号データ](https://www.post.japanpost.jp/zipcode/download.html)を利用しています
-- このライブラリは self-hosted な郵便番号検索を提供するために作成されました。外部APIを使用せず、バックエンドも不要です。ただし、ホストするアセットが100増えます。
-- クライアントサイドでのDynamic Importを利用したくない場合は、サーバサイド（Node.js）に導入することで、簡単に郵便番号APIを構築できます(Samples参照)。
+- このライブラリは self-hosted な郵便番号検索を提供するために作成されました。外部 API を使用せず、バックエンドも不要です。ただし、ホストするアセットが 100 個増えます。
+- クライアントサイドでの Dynamic Import を利用したくない場合は、サーバサイド（Node.js）に導入することで、簡単に郵便番号 API を構築できます(Samples 参照)。
