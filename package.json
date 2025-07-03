@@ -1,52 +1,52 @@
 {
-	"name": "jposta",
-	"description": "Library for Japanese postal code to address.ES6, Promise based, Typescript ready, React friendly, without any dependencies.",
-	"license": "MIT",
-	"version": "0.3.14",
-	"type": "module",
-	"files": [
-		"dist",
-		"index.d.ts"
-	],
-	"main": "./dist/index.cjs",
-	"module": "./dist/index.js",
-	"types": "./dist/index.d.ts",
-	"exports": {
-		".": {
-			"types": "./dist/index.d.ts",
-			"import": "./dist/index.js",
-			"require": "./dist/index.cjs",
-			"default": "./dist/index.js"
-		}
-	},
-	"keywords": [
-		"jposta",
-		"zipcode",
-		"postal-code",
-		"jp"
-	],
-	"scripts": {
-		"test": "vitest --run",
-		"build": "tsc && vite build",
-		"parse-csv": "cd ./data && mkdir -p zips && rm -f ./zips/*.json && tsx ./parse.ts && cp -f ./zips/*.json ../lib/zips",
-		"update-csv": "cd ./data && ./update.sh"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "1.8.1",
-		"csv-parse": "^5.5.6",
-		"tsx": "^4.15.4",
-		"typescript": "^5.4.5",
-		"vite": "^5.2.10",
-		"vite-plugin-dts": "^3.9.1",
-		"vitest": "^1.6.0"
-	},
-	"homepage": "https://github.com/nickichi/jposta",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/nickichi/jposta.git"
-	},
-	"bugs": {
-		"url": "https://github.com/nickichi/jposta/issues"
-	},
-	"author": "taichika"
+  "name": "jposta",
+  "description": "Library for Japanese postal code to address.ES6, Promise based, Typescript ready, React friendly, without any dependencies.",
+  "license": "MIT",
+  "version": "0.3.14",
+  "type": "module",
+  "files": [
+    "dist",
+    "index.d.ts"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    }
+  },
+  "keywords": [
+    "jposta",
+    "zipcode",
+    "postal-code",
+    "jp"
+  ],
+  "scripts": {
+    "test": "vitest --run",
+    "build": "tsc && vite build",
+    "parse-csv": "cd ./data && mkdir -p zips && rm -f ./zips/*.json && tsx ./parse.ts && cp -f ./zips/*.json ../lib/zips",
+    "update-csv": "cd ./data && ./update.sh"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.8.1",
+    "csv-parse": "^5.5.6",
+    "tsx": "^4.15.4",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.10",
+    "vite-plugin-dts": "^3.9.1",
+    "vitest": "^1.6.0"
+  },
+  "homepage": "https://github.com/nickichi/jposta",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nickichi/jposta.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nickichi/jposta/issues"
+  },
+  "author": "taichika"
 }
