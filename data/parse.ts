@@ -1,6 +1,11 @@
 import * as fs from "node:fs";
 import { parse } from "csv-parse/sync";
 
+type CompressedPostalData = {
+	c: string[];
+	d: Array<[number, number, number] | [number, number, number, string]>;
+};
+
 const parseCsv = () => {
 	const file = fs.readFileSync("./utf_ken_all.csv", "utf8");
 	const records = parse(file, {
@@ -16,12 +21,12 @@ const parseCsv = () => {
 	let count = 0;
 	let chunk: {
 		key: string;
-		data: {
-			[key: string]: [number, string, string];
-		};
+		cities: Set<string>;
+		data: Array<{ zip: string; prefNum: number; city: string; area: string }>;
 	} = {
 		key: "",
-		data: {},
+		cities: new Set(),
+		data: [],
 	};
 
 	for (const record of records) {
@@ -50,31 +55,76 @@ const parseCsv = () => {
 		if (chunk.key === "") {
 			chunk = {
 				key: chunkKey,
-				data: {},
+				cities: new Set(),
+				data: [],
 			};
 		}
 		if (chunk.key !== chunkKey) {
-			fs.writeFileSync(`./zips/z${chunk.key}.json`, JSON.stringify(chunk.data));
-			chunk.key = "";
+			writeCompressedChunk(chunk);
+			chunk = {
+				key: chunkKey,
+				cities: new Set(),
+				data: [],
+			};
 		}
 
 		// count records for confirmation
 		count++;
 
-		if (chunk.data[zip]) {
+		// Check for duplicate
+		const existingEntry = chunk.data.find(entry => entry.zip === zip);
+		if (existingEntry) {
 			// skip duplicate (use the first one)
 			continue;
 		}
 
-		chunk.data[zip] = [prefNum, city, area];
+		chunk.cities.add(city);
+		chunk.data.push({ zip, prefNum, city, area });
 	}
 
 	// write the last chunk
 	if (chunk.key !== "") {
-		fs.writeFileSync(`./zips/z${chunk.key}.json`, JSON.stringify(chunk.data));
+		writeCompressedChunk(chunk);
 	}
 
 	console.log(`processed ${count} records.`);
+};
+
+const writeCompressedChunk = (chunk: {
+	key: string;
+	cities: Set<string>;
+	data: Array<{ zip: string; prefNum: number; city: string; area: string }>;
+}) => {
+	const cityArray = Array.from(chunk.cities).sort();
+	const cityIndexMap = new Map<string, number>();
+	cityArray.forEach((city, index) => {
+		cityIndexMap.set(city, index);
+	});
+
+	const compressedData: Array<[number, number, number] | [number, number, number, string]> = [];
+
+	for (const { zip, prefNum, city, area } of chunk.data) {
+		const postalCodeNum = Number.parseInt(zip, 10);
+		const cityIndex = cityIndexMap.get(city);
+		
+		if (cityIndex === undefined) {
+			console.error(`City index not found for city: ${city}`);
+			continue;
+		}
+
+		if (area === "") {
+			compressedData.push([postalCodeNum, prefNum, cityIndex]);
+		} else {
+			compressedData.push([postalCodeNum, prefNum, cityIndex, area]);
+		}
+	}
+
+	const result: CompressedPostalData = {
+		c: cityArray,
+		d: compressedData,
+	};
+
+	fs.writeFileSync(`./zips/z${chunk.key}.json`, JSON.stringify(result));
 };
 
 parseCsv();
