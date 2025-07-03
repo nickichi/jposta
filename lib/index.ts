@@ -1,1 +1,1 @@
-export * from './jposta'
+export * from "./jposta";
