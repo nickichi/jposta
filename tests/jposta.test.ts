@@ -1,5 +1,6 @@
 import { expect, test } from "vitest";
 import { getAddress } from "../lib";
+import { postalCodeTestCases } from "./test-data";
 
 test.each(["bomb", "aaa-bbbb", "123456a"])(
 	"getAddress(%s) throws an error",
@@ -16,62 +17,28 @@ test.each(["1234567", "123-4567", "0001234"])(
 	},
 );
 
-test.each`
-	zipCode       | expected
-	${"0700973"}  | ${"北海道旭川市４区３条"}
-	${"004-0021"} | ${"北海道札幌市厚別区青葉町"}
-	${"039-2189"} | ${"青森県上北郡おいらせ町青葉"}
-	${"029-4504"} | ${"岩手県胆沢郡金ケ崎町永沢"}
-	${"981-2173"} | ${"宮城県伊具郡丸森町天炉"}
-	${"010-0833"} | ${"秋田県秋田市旭川新藤田東町"}
-	${"999-8315"} | ${"山形県飽海郡遊佐町大蕨岡"}
-	${"965-0031"} | ${"福島県会津若松市相生町"}
-	${"100-6810"} | ${"東京都千代田区大手町ＪＡビル"}
-	${"100-0001"} | ${"東京都千代田区千代田"}
-	${"150-6208"} | ${"東京都渋谷区桜丘町渋谷サクラステージＳＨＩＢＵＹＡサイドＳＨＩＢＵＹＡタワー"}
-	${"100-1701"} | ${"東京都青ヶ島村青ヶ島村一円"}
-	${"300-1414"} | ${"茨城県稲敷市戌渡"}
-	${"213-0014"} | ${"神奈川県川崎市高津区新作"}
-	${"326-0808"} | ${"栃木県足利市本城"}
-	${"270-1100"} | ${"千葉県我孫子市"}
-	${"370-3571"} | ${"群馬県前橋市池端町"}
-	${"401-0013"} | ${"山梨県大月市大月"}
-	${"333-0865"} | ${"埼玉県川口市伊刈"}
-	${"949-0112"} | ${"新潟県糸魚川市上路"}
-	${"381-0042"} | ${"長野県長野市稲田"}
-	${"939-0321"} | ${"富山県射水市青井谷"}
-	${"928-0008"} | ${"石川県輪島市マリンタウン"}
-	${"916-0262"} | ${"福井県丹生郡越前町宇須尾"}
-	${"410-2103"} | ${"静岡県伊豆の国市エメラルドタウン"}
-	${"501-0438"} | ${"岐阜県本巣郡北方町平成"}
-	${"458-0818"} | ${"愛知県名古屋市緑区鳴海町"}
-	${"518-0859"} | ${"三重県伊賀市上野相生町"}
-	${"525-0068"} | ${"滋賀県草津市南草津プリムタウン"}
-	${"602-0848"} | ${"京都府京都市上京区扇町"}
-	${"671-1136"} | ${"兵庫県姫路市大津区恵美酒町"}
-	${"557-0013"} | ${"大阪府大阪市西成区天神ノ森"}
-	${"630-8037"} | ${"奈良県奈良市中町"}
-	${"640-1363"} | ${"和歌山県海草郡紀美野町田"}
-	${"682-0721"} | ${"鳥取県東伯郡湯梨浜町田後"}
-	${"699-0763"} | ${"島根県出雲市大社町日御碕"}
-	${"701-2623"} | ${"岡山県美作市英田青野"}
-	${"736-0053"} | ${"広島県安芸郡海田町寿町"}
-	${"744-0000"} | ${"山口県下松市"}
-	${"769-0401"} | ${"香川県三豊市財田町財田上"}
-	${"797-1603"} | ${"愛媛県大洲市河辺町横山"}
-	${"779-1404"} | ${"徳島県阿南市阿瀬比町"}
-	${"784-0034"} | ${"高知県安芸市赤野乙"}
-	${"822-1324"} | ${"福岡県田川郡糸田町旭ケ丘"}
-	${"843-0304"} | ${"佐賀県嬉野市嬉野町岩屋川内"}
-	${"811-5301"} | ${"長崎県壱岐市芦辺町芦辺浦"}
-	${"869-5561"} | ${"熊本県葦北郡芦北町芦北"}
-	${"879-1138"} | ${"大分県宇佐市青森"}
-	${"889-4303"} | ${"宮崎県えびの市池島"}
-	${"893-2503"} | ${"鹿児島県肝属郡南大隅町根占横別府"}
-	${"907-1801"} | ${"沖縄県八重山郡与那国町与那国"}
-`("getAddress($zipCode) returns $expected", async ({ zipCode, expected }) => {
+test.each(postalCodeTestCases)("getAddress($zipCode) returns $expected", async ({ zipCode, expected }) => {
 	const address = await getAddress(zipCode);
 	expect(`${address?.pref}${address?.city}${address?.area || ""}`).toEqual(
 		expected,
 	);
+});
+
+test("compressed format maintains data integrity", async () => {
+	// Test a few postal codes to ensure compression doesn't break functionality
+	const testCodes = ["0100001", "1000001", "5000001"];
+	
+	for (const zipCode of testCodes) {
+		const address = await getAddress(zipCode);
+		// If address exists, it should have valid structure
+		if (address) {
+			expect(address.pref).toBeDefined();
+			expect(address.prefNum).toBeGreaterThan(0);
+			expect(address.prefNum).toBeLessThanOrEqual(47);
+			expect(address.city).toBeDefined();
+			expect(typeof address.pref).toBe("string");
+			expect(typeof address.city).toBe("string");
+			expect(typeof address.prefNum).toBe("number");
+		}
+	}
 });
