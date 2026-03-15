@@ -47,6 +47,9 @@ jobs:
   publish-npm:
     needs: [build, check-version]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -58,9 +61,9 @@ jobs:
         run: |
           VERSION=${{ needs.check-version.outputs.version }}
           if [[ "$VERSION" == *"beta"* ]]; then
-            npm publish --tag beta
+            npm publish --provenance --access public --tag beta
           else
-            npm publish
+            npm publish --provenance --access public
           fi
         env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
