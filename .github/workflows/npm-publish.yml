@@ -21,7 +21,7 @@ jobs:
           ref: ${{ github.event.inputs.tag || github.ref }}
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
       - run: npm ci
       - run: npm test
 
@@ -35,7 +35,7 @@ jobs:
           ref: ${{ github.event.inputs.tag || github.ref }}
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
       - id: set-version
         run: |
           RELEASE_VERSION="${TAG:-$(echo $GITHUB_REF | sed 's/refs\/tags\///')}"
@@ -67,7 +67,7 @@ jobs:
           ref: ${{ github.event.inputs.tag || github.ref }}
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           registry-url: https://registry.npmjs.org/
       - run: npm ci && npm run build
       - name: Publish to NPM Packages
