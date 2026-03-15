@@ -6,12 +6,19 @@ name: Publish NPM Package
 on:
   release:
     types: [created]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Git tag to publish (e.g. v0.4.8)'
+        required: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -24,12 +31,14 @@ jobs:
       version: ${{ steps.set-version.outputs.VERSION }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
       - uses: actions/setup-node@v4
         with:
           node-version: 20
       - id: set-version
         run: |
-          RELEASE_VERSION=$(echo $GITHUB_REF | sed 's/refs\/tags\///')
+          RELEASE_VERSION="${TAG:-$(echo $GITHUB_REF | sed 's/refs\/tags\///')}"
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
           # remove the v from the tag
           if [ "${RELEASE_VERSION:0:1}" == "v" ]; then
@@ -42,6 +51,8 @@ jobs:
           fi
           # outputs version
           echo "VERSION=${PACKAGE_VERSION}" >> $GITHUB_OUTPUT
+        env:
+          TAG: ${{ github.event.inputs.tag }}
           
 
   publish-npm:
@@ -52,6 +63,8 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
       - uses: actions/setup-node@v4
         with:
           node-version: 20
