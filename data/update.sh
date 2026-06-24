@@ -1,6 +1,6 @@
 #!/bin/bash
 
-URL="https://www.post.japanpost.jp/zipcode/dl/utf/zip/utf_ken_all.zip"
+URL="https://www.post.japanpost.jp/service/search/zipcode/download/utf/zip/utf_ken_all.zip"
 ZIP_FILE="utf_ken_all.zip"
 CSV_FILE="utf_ken_all.csv"
 TEMP_CSV="temp_utf_ken_all.csv"
