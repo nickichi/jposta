@@ -1,13 +1,3 @@
-type JpostaConfig = {
-	host: string;
-};
-
-const defaultConfig: JpostaConfig = {
-	host: "",
-};
-
-const currentConfig = defaultConfig;
-
 const prefs = [
 	"北海道",
 	"青森県",
@@ -81,7 +71,7 @@ export const getAddress = async (zipCode: string): Promise<Address | null> => {
 	const group = zip.slice(0, 2);
 	const json = await fetchJson(group);
 
-	if (!json || !json.c || !json.d) {
+	if (!json?.c || !json.d) {
 		return null;
 	}
 
@@ -119,17 +109,6 @@ type CompressedPostalData = {
 };
 
 const fetchJson = async (chunk: string): Promise<CompressedPostalData> => {
-	if (currentConfig.host !== "") {
-		const { default: json } = await import(
-			`${currentConfig.host}/z${chunk}.json`
-		);
-		return json;
-	}
-
 	const { default: json } = await import(`./zips/z${chunk}.json`);
 	return json;
-};
-
-export const configureJposta = (config: Partial<JpostaConfig>) => {
-	currentConfig.host = config.host || defaultConfig.host;
 };
