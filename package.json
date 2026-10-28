@@ -32,13 +32,13 @@
     "update-csv": "cd ./data && ./update.sh"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.7",
-    "csv-parse": "^6.1.0",
-    "tsx": "^4.21.0",
-    "typescript": "^5.9.3",
-    "vite": "^8.0.0",
-    "vite-plugin-dts": "^4.5.4",
-    "vitest": "^4.1.0"
+    "@biomejs/biome": "^2.5.15",
+    "csv-parse": "^7.0.3",
+    "tsx": "^4.23.15",
+    "typescript": "^6.0.3",
+    "vite": "^8.3.4",
+    "vite-plugin-dts": "^5.1.2",
+    "vitest": "^5.0.5"
   },
   "homepage": "https://github.com/nickichi/jposta",
   "repository": {
