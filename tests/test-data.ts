@@ -49,7 +49,8 @@ export const postalCodeTestCases = [
 		expected:
 			"東京都渋谷区桜丘町渋谷サクラステージＳＨＩＢＵＹＡサイドＳＨＩＢＵＹＡタワー",
 	},
-	{ zipCode: "100-1701", expected: "東京都青ヶ島村青ヶ島村一円" },
+	{ zipCode: "100-1701", expected: "東京都青ヶ島村" },
+	{ zipCode: "5220317", expected: "滋賀県犬上郡多賀町一円" },
 	{ zipCode: "300-1414", expected: "茨城県稲敷市戌渡" },
 	{ zipCode: "213-0014", expected: "神奈川県川崎市高津区新作" },
 	{ zipCode: "326-0808", expected: "栃木県足利市本城" },

@@ -21,10 +21,12 @@ const parseCsv = () => {
 	let count = 0;
 	let chunk: {
 		key: string;
+		zips: Set<string>;
 		cities: Set<string>;
 		data: Array<{ zip: string; prefNum: number; city: string; area: string }>;
 	} = {
 		key: "",
+		zips: new Set(),
 		cities: new Set(),
 		data: [],
 	};
@@ -37,13 +39,15 @@ const parseCsv = () => {
 		const city = record[7];
 		const rawArea = record[8].replace(/（.+）/g, "");
 
+		// "〇〇村一円" means the whole municipality has no area names (but "一円" alone is a real area in 多賀町)
 		const area =
 			rawArea.includes("以下に掲載がない場合") ||
-			rawArea.includes("番地がくる場合")
+			rawArea.includes("番地がくる場合") ||
+			(rawArea !== "一円" && rawArea.endsWith("一円"))
 				? ""
 				: rawArea;
 
-		const prefNum = Number.parseInt(code.slice(0, 2));
+		const prefNum = Number.parseInt(code.slice(0, 2), 10);
 		if (!pref) {
 			console.error(
 				`pref not found prefNum:${prefNum} record:${JSON.stringify(record)}`,
@@ -55,6 +59,7 @@ const parseCsv = () => {
 		if (chunk.key === "") {
 			chunk = {
 				key: chunkKey,
+				zips: new Set(),
 				cities: new Set(),
 				data: [],
 			};
@@ -63,6 +68,7 @@ const parseCsv = () => {
 			writeCompressedChunk(chunk);
 			chunk = {
 				key: chunkKey,
+				zips: new Set(),
 				cities: new Set(),
 				data: [],
 			};
@@ -71,13 +77,12 @@ const parseCsv = () => {
 		// count records for confirmation
 		count++;
 
-		// Check for duplicate
-		const existingEntry = chunk.data.find((entry) => entry.zip === zip);
-		if (existingEntry) {
-			// skip duplicate (use the first one)
+		// skip duplicate (use the first one)
+		if (chunk.zips.has(zip)) {
 			continue;
 		}
 
+		chunk.zips.add(zip);
 		chunk.cities.add(city);
 		chunk.data.push({ zip, prefNum, city, area });
 	}
