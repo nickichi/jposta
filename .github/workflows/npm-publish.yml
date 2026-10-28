@@ -1,10 +1,16 @@
-# This workflow will run tests using node and then publish a package to npm when a release is created
+# This workflow will run tests using node and then publish a package to npm.
+# It runs when the version in package.json changes on main, when a release is created,
+# or manually for a given tag. A GitHub release is created for the published version.
 # Publishing uses npm Trusted Publishing (OIDC), so no npm token is stored in this repository.
 # For more information see: https://docs.npmjs.com/trusted-publishers
+# NOTE: npm Trusted Publishing is bound to this file name; do not rename it.
 
 name: Publish NPM Package
 
 on:
+  push:
+    branches: [ main ]
+    paths: [ package.json ]
   release:
     types: [created]
   workflow_dispatch:
@@ -19,6 +25,10 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.inputs.tag || github.ref }}
   cancel-in-progress: false
 
+env:
+  # Pin pushes to the triggering commit so a later push to main is never published by this run
+  CHECKOUT_REF: ${{ github.event.inputs.tag || (github.event_name == 'push' && github.sha) || github.ref }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -28,7 +38,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.inputs.tag || github.ref }}
+          ref: ${{ env.CHECKOUT_REF }}
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
@@ -45,10 +55,11 @@ jobs:
       contents: read
     outputs:
       version: ${{ steps.set-version.outputs.VERSION }}
+      publish: ${{ steps.set-version.outputs.PUBLISH }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.inputs.tag || github.ref }}
+          ref: ${{ env.CHECKOUT_REF }}
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
@@ -56,24 +67,36 @@ jobs:
           package-manager-cache: false
       - id: set-version
         run: |
-          RELEASE_VERSION="${TAG:-${GITHUB_REF#refs/tags/}}"
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
-          # remove the v from the tag
-          if [ "${RELEASE_VERSION:0:1}" == "v" ]; then
-              RELEASE_VERSION="${RELEASE_VERSION:1}"
+          if [ "$EVENT_NAME" != "push" ]; then
+              RELEASE_VERSION="${TAG:-${GITHUB_REF#refs/tags/}}"
+              # remove the v from the tag
+              if [ "${RELEASE_VERSION:0:1}" == "v" ]; then
+                  RELEASE_VERSION="${RELEASE_VERSION:1}"
+              fi
+              # check
+              if [ "$RELEASE_VERSION" != "$PACKAGE_VERSION" ]; then
+                  echo "The package version ($PACKAGE_VERSION) does not match the release tag ($RELEASE_VERSION)"
+                  exit 1
+              fi
           fi
-          # check
-          if [ "$RELEASE_VERSION" != "$PACKAGE_VERSION" ]; then
-              echo "The package version ($PACKAGE_VERSION) does not match the release tag ($RELEASE_VERSION)"
-              exit 1
+          # skip versions that are already on npm (e.g. package.json changed without a version bump)
+          if [ -n "$(npm view "${PACKAGE_NAME}@${PACKAGE_VERSION}" version 2>/dev/null)" ]; then
+              echo "${PACKAGE_NAME}@${PACKAGE_VERSION} is already published. Skipping."
+              echo "PUBLISH=false" >> "$GITHUB_OUTPUT"
+          else
+              echo "PUBLISH=true" >> "$GITHUB_OUTPUT"
           fi
           # outputs version
           echo "VERSION=${PACKAGE_VERSION}" >> "$GITHUB_OUTPUT"
         env:
+          EVENT_NAME: ${{ github.event_name }}
           TAG: ${{ github.event.inputs.tag }}
 
   publish-npm:
     needs: [build, check-version]
+    if: needs.check-version.outputs.publish == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -82,7 +105,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.inputs.tag || github.ref }}
+          ref: ${{ env.CHECKOUT_REF }}
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
@@ -99,3 +122,29 @@ jobs:
           fi
         env:
           VERSION: ${{ needs.check-version.outputs.version }}
+
+  # Kept separate from publish-npm so the job holding the OIDC token never gets write access to the repository
+  create-release:
+    needs: [check-version, publish-npm]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write # create the tag and GitHub release
+    steps:
+      - name: Create GitHub release
+        run: |
+          TAG="v${VERSION}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists. Skipping."
+            exit 0
+          fi
+          PRERELEASE=()
+          if [[ "$VERSION" == *"beta"* ]]; then
+            PRERELEASE=(--prerelease)
+          fi
+          gh release create "$TAG" --target "$TARGET" --title "$TAG" --generate-notes "${PRERELEASE[@]}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VERSION: ${{ needs.check-version.outputs.version }}
+          TARGET: ${{ github.sha }}

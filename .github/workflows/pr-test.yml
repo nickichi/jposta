@@ -41,6 +41,39 @@ jobs:
       - name: Build
         run: npm run build
 
+  # Data update PRs are merged after a quick look, so make sure they only touch generated data and the version
+  data-update-scope:
+    if: startsWith(github.head_ref, 'update-zipcode-data-')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check changed files
+        run: |
+          UNEXPECTED=$(git diff --name-only "$BASE_SHA" HEAD | grep -vE '^(data/utf_ken_all\.csv|lib/zips/z[0-9]{2}\.json|package\.json|package-lock\.json)$' || true)
+          if [ -n "$UNEXPECTED" ]; then
+            echo "::error::Unexpected files changed in a data update PR:"
+            echo "$UNEXPECTED"
+            exit 1
+          fi
+      - name: Check package.json changes are version-only
+        run: |
+          if ! diff <(git show "$BASE_SHA:package.json" | jq -S 'del(.version)') <(jq -S 'del(.version)' package.json); then
+            echo "::error::package.json changed beyond the version field"
+            exit 1
+          fi
+          if ! diff <(git show "$BASE_SHA:package-lock.json" | jq -S 'del(.version, .packages[""].version)') <(jq -S 'del(.version, .packages[""].version)' package-lock.json); then
+            echo "::error::package-lock.json changed beyond the version field"
+            exit 1
+          fi
+    env:
+      BASE_SHA: ${{ github.event.pull_request.base.sha }}
+
   dependency-review:
     runs-on: ubuntu-latest
     timeout-minutes: 5
