@@ -72,7 +72,7 @@ const parseCsv = () => {
 		count++;
 
 		// Check for duplicate
-		const existingEntry = chunk.data.find(entry => entry.zip === zip);
+		const existingEntry = chunk.data.find((entry) => entry.zip === zip);
 		if (existingEntry) {
 			// skip duplicate (use the first one)
 			continue;
@@ -101,12 +101,14 @@ const writeCompressedChunk = (chunk: {
 		cityIndexMap.set(city, index);
 	});
 
-	const compressedData: Array<[number, number, number] | [number, number, number, string]> = [];
+	const compressedData: Array<
+		[number, number, number] | [number, number, number, string]
+	> = [];
 
 	for (const { zip, prefNum, city, area } of chunk.data) {
 		const postalCodeNum = Number.parseInt(zip, 10);
 		const cityIndex = cityIndexMap.get(city);
-		
+
 		if (cityIndex === undefined) {
 			console.error(`City index not found for city: ${city}`);
 			continue;
