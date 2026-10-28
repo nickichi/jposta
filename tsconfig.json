@@ -12,6 +12,7 @@
 		"declaration": true,
 		"emitDeclarationOnly": true,
 		"outDir": "dist",
+		"rootDir": "lib",
 		"strict": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
