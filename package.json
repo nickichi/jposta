@@ -27,7 +27,7 @@
   ],
   "scripts": {
     "test": "vitest --run",
-    "build": "tsc && vite build",
+    "build": "vite build && tsc",
     "parse-csv": "cd ./data && mkdir -p zips && rm -f ./zips/*.json && tsx ./parse.ts && cp -f ./zips/*.json ../lib/zips",
     "update-csv": "cd ./data && ./update.sh"
   },
@@ -35,9 +35,8 @@
     "@biomejs/biome": "^2.5.15",
     "csv-parse": "^7.0.3",
     "tsx": "^4.23.15",
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.2",
     "vite": "^8.3.4",
-    "vite-plugin-dts": "^5.1.2",
     "vitest": "^5.0.5"
   },
   "homepage": "https://github.com/nickichi/jposta",

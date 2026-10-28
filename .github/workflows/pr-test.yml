@@ -40,6 +40,9 @@ jobs:
         run: npm run test
       - name: Build
         run: npm run build
+      # vite build empties dist, so tsc must run after it; make sure the declarations survived
+      - name: Check type declarations
+        run: test -f dist/index.d.ts
 
   # Data update PRs are merged after a quick look, so make sure they only touch generated data and the version
   data-update-scope:
