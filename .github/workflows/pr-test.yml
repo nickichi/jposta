@@ -4,16 +4,49 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 10
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          node-version: '24'
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+      # min-release-age in .npmrc is silently ignored by npm < 11.10
+      - name: Check npm version
+        run: |
+          IFS=. read -r major minor _ <<< "$(npm -v)"
+          if (( major < 11 || (major == 11 && minor < 10) )); then
+            echo "::error::npm $(npm -v) does not support min-release-age (requires >= 11.10)"
+            exit 1
+          fi
       - name: Install dependencies
         run: npm ci
+      - name: Verify registry signatures
+        run: npm audit signatures
       - name: Run tests
         run: npm run test
+      - name: Build
+        run: npm run build
+
+  dependency-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: moderate

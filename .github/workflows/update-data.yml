@@ -5,23 +5,36 @@ on:
     - cron: '0 0 * * *'
   workflow_dispatch:
 
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
 jobs:
   update-and-process-csv:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write # push the update branch
+      pull-requests: write # open the update PR
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: '24'
+          node-version-file: .node-version
+          package-manager-cache: false
 
       - name: Set current date
-        run: echo "TODAY=$(date +'%Y%m%d')" >> $GITHUB_ENV
+        run: echo "TODAY=$(date +'%Y%m%d')" >> "$GITHUB_ENV"
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Update CSV
         run: npm run update-csv
@@ -29,22 +42,22 @@ jobs:
       - name: Check for changes
         id: git-check
         run: |
-          git diff --exit-code ./data/utf_ken_all.csv && echo "changes=false" >> $GITHUB_OUTPUT || echo "changes=true" >> $GITHUB_OUTPUT
+          git diff --exit-code ./data/utf_ken_all.csv && echo "changes=false" >> "$GITHUB_OUTPUT" || echo "changes=true" >> "$GITHUB_OUTPUT"
 
       - name: Check for existing PR
         if: steps.git-check.outputs.changes == 'true'
-        uses: actions/github-script@v6
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         id: check-pr
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const prs = await github.rest.pulls.list({
+            // `head` filter of pulls.list requires an exact branch name, so filter by prefix here
+            const prs = await github.paginate(github.rest.pulls.list, {
               owner: context.repo.owner,
               repo: context.repo.repo,
               state: 'open',
-              head: 'update-zipcode-data-'
             });
-            if (prs.data.length > 0) {
+            if (prs.some((pr) => pr.head.ref.startsWith('update-zipcode-data-'))) {
               console.log('Existing PR found. Exiting workflow.');
               core.setOutput('existing_pr', 'true');
             } else {
@@ -68,11 +81,11 @@ jobs:
         if: steps.git-check.outputs.changes == 'true' && steps.check-pr.outputs.existing_pr != 'true'
         run: |
           npm version patch -m "Bump patch version to %s due to CSV update"
-          echo "NEW_VERSION=$(npm pkg get version | tr -d '"')" >> $GITHUB_ENV
+          echo "NEW_VERSION=$(npm pkg get version | tr -d '"')" >> "$GITHUB_ENV"
 
       - name: Create Pull Request if changed
         if: steps.git-check.outputs.changes == 'true' && steps.check-pr.outputs.existing_pr != 'true'
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
           commit-message: Update CSV data and bump patch version
           title: Update CSV data to ${{ env.NEW_VERSION }} ${{ env.TODAY }}
