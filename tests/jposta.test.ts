@@ -27,21 +27,14 @@ test.each(postalCodeTestCases)(
 	},
 );
 
-test("compressed format maintains data integrity", async () => {
-	// Test a few postal codes to ensure compression doesn't break functionality
-	const testCodes = ["0100001", "1000001", "5000001"];
-
-	for (const zipCode of testCodes) {
+test.each(["0100001", "1000001", "5008044"])(
+	"getAddress(%s) returns a well-formed address",
+	async (zipCode) => {
 		const address = await getAddress(zipCode);
-		// If address exists, it should have valid structure
-		if (address) {
-			expect(address.pref).toBeDefined();
-			expect(address.prefNum).toBeGreaterThan(0);
-			expect(address.prefNum).toBeLessThanOrEqual(47);
-			expect(address.city).toBeDefined();
-			expect(typeof address.pref).toBe("string");
-			expect(typeof address.city).toBe("string");
-			expect(typeof address.prefNum).toBe("number");
-		}
-	}
-});
+		expect(address).not.toBeNull();
+		expect(typeof address?.pref).toBe("string");
+		expect(typeof address?.city).toBe("string");
+		expect(address?.prefNum).toBeGreaterThan(0);
+		expect(address?.prefNum).toBeLessThanOrEqual(47);
+	},
+);
