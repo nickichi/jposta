@@ -37,6 +37,14 @@ console.log(address2);
 // { pref: "東京都", prefNum: 13, city: "千代田区", area: "皇居外苑" }
 ```
 
+### Return value
+
+- Resolves to `{ pref, prefNum, city, area? }` when the zip code exists. `prefNum` is the JIS prefecture code (1–47).
+- `area` is omitted when the zip code covers a whole city (e.g. `以下に掲載がない場合`, `〇〇村一円`). Parenthesized notes such as floor numbers are removed.
+- If a zip code is shared by multiple areas, only the first entry in the Japan Post data is returned.
+- Resolves to `null` when the zip code does not exist.
+- Rejects when the input is not 7 digits or `NNN-NNNN`.
+
 ## Dynamic Import (Browser)
 
 jposta requires hosting the data file in your project.
