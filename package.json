@@ -5,8 +5,7 @@
 	"version": "0.4.17",
 	"type": "module",
 	"files": [
-		"dist",
-		"index.d.ts"
+		"dist"
 	],
 	"main": "./dist/index.cjs",
 	"module": "./dist/index.js",
@@ -27,6 +26,7 @@
 	],
 	"scripts": {
 		"test": "vitest --run",
+		"lint": "biome ci .",
 		"build": "vite build && tsc",
 		"parse-csv": "cd ./data && mkdir -p zips && rm -f ./zips/*.json && tsx ./parse.ts && cp -f ./zips/*.json ../lib/zips",
 		"update-csv": "cd ./data && ./update.sh"

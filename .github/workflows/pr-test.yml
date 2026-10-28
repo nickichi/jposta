@@ -36,6 +36,8 @@ jobs:
         run: npm ci
       - name: Verify registry signatures
         run: npm audit signatures
+      - name: Lint
+        run: npm run lint
       - name: Run tests
         run: npm run test
       - name: Build
@@ -43,6 +45,9 @@ jobs:
       # vite build empties dist, so tsc must run after it; make sure the declarations survived
       - name: Check type declarations
         run: test -f dist/index.d.ts
+      # Consumers on Node16/NodeNext resolution need explicit extensions in relative imports
+      - name: Type-check declarations with NodeNext resolution
+        run: npx tsc --ignoreConfig --noEmit --module NodeNext --moduleResolution NodeNext --target ES2020 dist/index.d.ts
 
   # Data update PRs are merged after a quick look, so make sure they only touch generated data and the version
   data-update-scope:
