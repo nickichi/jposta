@@ -69,6 +69,11 @@ jobs:
         if: steps.git-check.outputs.changes == 'true' && steps.check-pr.outputs.existing_pr != 'true'
         run: npm run parse-csv
 
+      # PRs created with GITHUB_TOKEN do not trigger pr-test.yml, so verify the generated data here
+      - name: Test generated data
+        if: steps.git-check.outputs.changes == 'true' && steps.check-pr.outputs.existing_pr != 'true'
+        run: npm test
+
       - name: Commit CSV changes
         if: steps.git-check.outputs.changes == 'true' && steps.check-pr.outputs.existing_pr != 'true'
         run: |

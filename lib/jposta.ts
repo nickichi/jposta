@@ -1,3 +1,5 @@
+import { type ChunkData, findInChunk } from "./chunk.js";
+
 const prefs = [
 	"北海道",
 	"青森県",
@@ -67,62 +69,26 @@ export const getAddress = async (zipCode: string): Promise<Address | null> => {
 	}
 
 	const zip = zipCode.replace("-", "");
-	const target = Number.parseInt(zip.slice(2), 10);
-	const json = await fetchJson(zip.slice(0, 2));
-
-	if (!json?.c || !json.d) {
+	const chunk = await fetchJson(zip.slice(0, 2));
+	const entry = findInChunk(chunk, Number.parseInt(zip.slice(2), 10));
+	if (!entry) {
 		return null;
 	}
 
-	// Each row is [zip delta, city index (only when changed)?, area?]
-	let current = 0;
-	let cityIndex = -1;
-	for (const row of json.d) {
-		current += row[0];
-		let i = 1;
-		if (typeof row[i] === "number") {
-			cityIndex = row[i] as number;
-			i++;
-		}
-		if (current < target) {
-			continue;
-		}
-		if (current > target) {
-			return null;
-		}
-
-		const area = row[i];
-		const cityEntry = json.c[cityIndex];
-		const pref = cityEntry && prefs[cityEntry[1] - 1];
-		if (
-			!cityEntry ||
-			typeof cityEntry[0] !== "string" ||
-			typeof pref !== "string" ||
-			(area !== undefined && typeof area !== "string")
-		) {
-			throw new Error(`Internal error data broken: ${JSON.stringify(row)}`);
-		}
-		const [city, prefNum] = cityEntry;
-
-		return {
-			pref: pref,
-			prefNum: prefNum,
-			city: city,
-			area: area || undefined,
-		};
+	const pref = prefs[entry.prefNum - 1];
+	if (typeof pref !== "string") {
+		throw new Error(`Internal error data broken: prefNum ${entry.prefNum}`);
 	}
-	return null;
+
+	return {
+		pref: pref,
+		prefNum: entry.prefNum,
+		city: entry.city,
+		area: entry.area || undefined,
+	};
 };
 
-type CompressedPostalData = {
-	// [city, prefNum]
-	c: Array<[string, number]>;
-	d: Array<
-		[number] | [number, number] | [number, string] | [number, number, string]
-	>;
-};
-
-const fetchJson = async (chunk: string): Promise<CompressedPostalData> => {
+const fetchJson = async (chunk: string): Promise<ChunkData> => {
 	const { default: json } = await import(`./zips/z${chunk}.json`);
 	return json;
 };
