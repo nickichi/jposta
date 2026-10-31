@@ -35,11 +35,8 @@ export const toEntries = (records: string[][]): Entry[] => {
 		const zip = record[2];
 		const pref = record[6];
 		const prefNum = Number.parseInt(code.slice(0, 2), 10);
-		if (!pref) {
-			console.error(
-				`pref not found prefNum:${prefNum} record:${JSON.stringify(record)}`,
-			);
-			continue;
+		if (!pref || !(prefNum >= 1 && prefNum <= 47)) {
+			throw new Error(`Invalid prefecture: ${JSON.stringify(record)}`);
 		}
 
 		// skip duplicate (use the first one)

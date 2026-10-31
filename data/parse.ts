@@ -13,45 +13,31 @@ const parseCsv = () => {
 		skip_empty_lines: true,
 	}) as string[][];
 
-	const chunks = new Map<string, Entry[]>();
-	for (const entry of toEntries(records)) {
-		const key = entry.zip.slice(0, 2);
-		const chunk = chunks.get(key) ?? [];
-		chunk.push(entry);
-		chunks.set(key, chunk);
+	const entries = toEntries(records);
+	for (const [key, chunk] of Map.groupBy(entries, ({ zip }) =>
+		zip.slice(0, 2),
+	)) {
+		writeCompressedChunk(key, chunk);
 	}
 
-	for (const [key, entries] of chunks) {
-		writeCompressedChunk(key, entries);
-	}
-
-	console.log(`processed ${records.length} records.`);
+	console.log(
+		`processed ${records.length} records -> ${entries.length} entries.`,
+	);
 };
 
 const writeCompressedChunk = (key: string, entries: Entry[]) => {
 	const cityArray = Array.from(new Set(entries.map(({ city }) => city))).sort();
-	const cityIndexMap = new Map<string, number>();
-	cityArray.forEach((city, index) => {
-		cityIndexMap.set(city, index);
-	});
+	const cityIndexMap = new Map(cityArray.map((city, index) => [city, index]));
 
-	const compressedData: CompressedPostalData["d"] = [];
-
-	for (const { zip, prefNum, city, area } of entries) {
-		const postalCodeNum = Number.parseInt(zip, 10);
-		const cityIndex = cityIndexMap.get(city);
-
-		if (cityIndex === undefined) {
-			console.error(`City index not found for city: ${city}`);
-			continue;
-		}
-
-		if (area === "") {
-			compressedData.push([postalCodeNum, prefNum, cityIndex]);
-		} else {
-			compressedData.push([postalCodeNum, prefNum, cityIndex, area]);
-		}
-	}
+	const compressedData: CompressedPostalData["d"] = entries.map(
+		({ zip, prefNum, city, area }) => {
+			const postalCodeNum = Number.parseInt(zip, 10);
+			const cityIndex = cityIndexMap.get(city) as number;
+			return area === ""
+				? [postalCodeNum, prefNum, cityIndex]
+				: [postalCodeNum, prefNum, cityIndex, area];
+		},
+	);
 
 	const result: CompressedPostalData = {
 		c: cityArray,
