@@ -12,7 +12,7 @@ on:
     branches: [ main ]
     paths: [ package.json ]
   release:
-    types: [created]
+    types: [published]
   workflow_dispatch:
     inputs:
       tag:
@@ -56,6 +56,8 @@ jobs:
     outputs:
       version: ${{ steps.set-version.outputs.VERSION }}
       publish: ${{ steps.set-version.outputs.PUBLISH }}
+      prerelease: ${{ steps.set-version.outputs.PRERELEASE }}
+      sha: ${{ steps.set-version.outputs.SHA }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -88,8 +90,15 @@ jobs:
           else
               echo "PUBLISH=true" >> "$GITHUB_OUTPUT"
           fi
-          # outputs version
+          # a SemVer prerelease has a "-" before any build metadata (e.g. 1.0.0-rc.1)
+          if [[ "${PACKAGE_VERSION%%+*}" == *-* ]]; then
+              echo "PRERELEASE=true" >> "$GITHUB_OUTPUT"
+          else
+              echo "PRERELEASE=false" >> "$GITHUB_OUTPUT"
+          fi
+          # outputs version and the commit actually checked out, so the release tag points at the published code
           echo "VERSION=${PACKAGE_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "SHA=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
         env:
           EVENT_NAME: ${{ github.event_name }}
           TAG: ${{ github.event.inputs.tag }}
@@ -116,13 +125,13 @@ jobs:
       - run: test -f dist/index.d.ts
       - name: Publish to NPM Packages
         run: |
-          if [[ "$VERSION" == *"beta"* ]]; then
+          if [ "$PRERELEASE" == "true" ]; then
             npm publish --provenance --access public --tag beta
           else
             npm publish --provenance --access public
           fi
         env:
-          VERSION: ${{ needs.check-version.outputs.version }}
+          PRERELEASE: ${{ needs.check-version.outputs.prerelease }}
 
   # Kept separate from publish-npm so the job holding the OIDC token never gets write access to the repository
   create-release:
@@ -139,13 +148,14 @@ jobs:
             echo "Release $TAG already exists. Skipping."
             exit 0
           fi
-          PRERELEASE=()
-          if [[ "$VERSION" == *"beta"* ]]; then
-            PRERELEASE=(--prerelease)
+          PRERELEASE_FLAG=()
+          if [ "$PRERELEASE" == "true" ]; then
+            PRERELEASE_FLAG=(--prerelease)
           fi
-          gh release create "$TAG" --target "$TARGET" --title "$TAG" --generate-notes "${PRERELEASE[@]}"
+          gh release create "$TAG" --target "$TARGET" --title "$TAG" --generate-notes "${PRERELEASE_FLAG[@]}"
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           VERSION: ${{ needs.check-version.outputs.version }}
-          TARGET: ${{ github.sha }}
+          PRERELEASE: ${{ needs.check-version.outputs.prerelease }}
+          TARGET: ${{ needs.check-version.outputs.sha }}
