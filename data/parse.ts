@@ -2,9 +2,16 @@ import * as fs from "node:fs";
 import { parse } from "csv-parse/sync";
 import { type Entry, toEntries } from "./normalize";
 
+type Row =
+	| [number]
+	| [number, number]
+	| [number, string]
+	| [number, number, string];
+
 type CompressedPostalData = {
-	c: string[];
-	d: Array<[number, number, number] | [number, number, number, string]>;
+	// [city, prefNum]
+	c: Array<[string, number]>;
+	d: Row[];
 };
 
 const parseCsv = () => {
@@ -25,25 +32,37 @@ const parseCsv = () => {
 	);
 };
 
+// Each row is [zip delta, city index (only when changed)?, area?].
+// The zip delta is from the previous row's last 5 digits (0 for the first row).
 const writeCompressedChunk = (key: string, entries: Entry[]) => {
-	const cityArray = Array.from(new Set(entries.map(({ city }) => city))).sort();
-	const cityIndexMap = new Map(cityArray.map((city, index) => [city, index]));
+	const cities: CompressedPostalData["c"] = [];
+	const cityIndexMap = new Map<string, number>();
+	let prevZip = 0;
+	let prevCityIndex = -1;
 
-	const compressedData: CompressedPostalData["d"] = entries.map(
-		({ zip, prefNum, city, area }) => {
-			const postalCodeNum = Number.parseInt(zip, 10);
-			const cityIndex = cityIndexMap.get(city) as number;
-			return area === ""
-				? [postalCodeNum, prefNum, cityIndex]
-				: [postalCodeNum, prefNum, cityIndex, area];
-		},
-	);
+	const rows = entries.map(({ zip, prefNum, city, area }) => {
+		const cityKey = `${prefNum}:${city}`;
+		let cityIndex = cityIndexMap.get(cityKey);
+		if (cityIndex === undefined) {
+			cityIndex = cities.length;
+			cityIndexMap.set(cityKey, cityIndex);
+			cities.push([city, prefNum]);
+		}
 
-	const result: CompressedPostalData = {
-		c: cityArray,
-		d: compressedData,
-	};
+		const zipNum = Number.parseInt(zip.slice(2), 10);
+		const row: Array<number | string> = [zipNum - prevZip];
+		if (cityIndex !== prevCityIndex) {
+			row.push(cityIndex);
+		}
+		if (area !== "") {
+			row.push(area);
+		}
+		prevZip = zipNum;
+		prevCityIndex = cityIndex;
+		return row as Row;
+	});
 
+	const result: CompressedPostalData = { c: cities, d: rows };
 	fs.writeFileSync(`./zips/z${key}.json`, JSON.stringify(result));
 };
 

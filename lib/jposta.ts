@@ -67,45 +67,59 @@ export const getAddress = async (zipCode: string): Promise<Address | null> => {
 	}
 
 	const zip = zipCode.replace("-", "");
-	const zipNum = Number.parseInt(zip, 10);
-	const group = zip.slice(0, 2);
-	const json = await fetchJson(group);
+	const target = Number.parseInt(zip.slice(2), 10);
+	const json = await fetchJson(zip.slice(0, 2));
 
 	if (!json?.c || !json.d) {
 		return null;
 	}
 
-	const entry = json.d.find(([postalCode]) => postalCode === zipNum);
-	if (!entry) {
-		return null;
+	// Each row is [zip delta, city index (only when changed)?, area?]
+	let current = 0;
+	let cityIndex = -1;
+	for (const row of json.d) {
+		current += row[0];
+		let i = 1;
+		if (typeof row[i] === "number") {
+			cityIndex = row[i] as number;
+			i++;
+		}
+		if (current < target) {
+			continue;
+		}
+		if (current > target) {
+			return null;
+		}
+
+		const area = row[i];
+		const cityEntry = json.c[cityIndex];
+		const pref = cityEntry && prefs[cityEntry[1] - 1];
+		if (
+			!cityEntry ||
+			typeof cityEntry[0] !== "string" ||
+			typeof pref !== "string" ||
+			(area !== undefined && typeof area !== "string")
+		) {
+			throw new Error(`Internal error data broken: ${JSON.stringify(row)}`);
+		}
+		const [city, prefNum] = cityEntry;
+
+		return {
+			pref: pref,
+			prefNum: prefNum,
+			city: city,
+			area: area || undefined,
+		};
 	}
-
-	const [, prefNum, cityIndex, area] = entry;
-	const city = json.c[cityIndex];
-	const pref = prefs[prefNum - 1];
-
-	if (
-		typeof prefNum !== "number" ||
-		typeof city !== "string" ||
-		typeof pref !== "string" ||
-		cityIndex >= json.c.length ||
-		prefNum < 1 ||
-		prefNum > prefs.length
-	) {
-		throw new Error(`Internal error data broken: ${JSON.stringify(entry)}`);
-	}
-
-	return {
-		pref: pref,
-		prefNum: prefNum,
-		city: city,
-		area: area || undefined,
-	};
+	return null;
 };
 
 type CompressedPostalData = {
-	c: string[];
-	d: Array<[number, number, number] | [number, number, number, string]>;
+	// [city, prefNum]
+	c: Array<[string, number]>;
+	d: Array<
+		[number] | [number, number] | [number, string] | [number, number, string]
+	>;
 };
 
 const fetchJson = async (chunk: string): Promise<CompressedPostalData> => {

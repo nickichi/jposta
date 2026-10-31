@@ -115,11 +115,13 @@ describe("lib/zips", () => {
 		expect(files).toHaveLength(100);
 	});
 
-	test.each(files)("%s has sorted unique zip codes", (file) => {
+	test.each(files)("%s has ascending unique zip codes", (file) => {
 		const json = JSON.parse(fs.readFileSync(`./lib/zips/${file}`, "utf8"));
-		const chunkZips: number[] = json.d.map(([zip]: [number]) => zip);
-		for (let i = 1; i < chunkZips.length; i++) {
-			expect(chunkZips[i]).toBeGreaterThan(chunkZips[i - 1]);
+		const [first, ...rest]: [number, ...unknown[]][] = json.d;
+		expect(first[0]).toBeGreaterThanOrEqual(0);
+		expect(typeof first[1]).toBe("number");
+		for (const [delta] of rest) {
+			expect(delta).toBeGreaterThan(0);
 		}
 	});
 
