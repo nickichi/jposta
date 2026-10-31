@@ -42,7 +42,7 @@
 	"homepage": "https://github.com/nickichi/jposta",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/nickichi/jposta.git"
+		"url": "git+https://github.com/nickichi/jposta.git"
 	},
 	"bugs": {
 		"url": "https://github.com/nickichi/jposta/issues"
