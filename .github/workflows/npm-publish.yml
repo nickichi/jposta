@@ -9,14 +9,14 @@ name: Publish NPM Package
 
 on:
   push:
-    branches: [ main ]
-    paths: [ package.json ]
+    branches: [main]
+    paths: [package.json]
   release:
     types: [published]
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Git tag to publish (e.g. v0.4.8)'
+        description: "Git tag to publish (e.g. v0.4.8)"
         required: true
 
 permissions: {}
