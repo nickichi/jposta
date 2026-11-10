@@ -1,3 +1,5 @@
+import { type ChunkData, findInChunk } from "./chunk.js";
+
 const prefs = [
 	"北海道",
 	"青森県",
@@ -67,48 +69,26 @@ export const getAddress = async (zipCode: string): Promise<Address | null> => {
 	}
 
 	const zip = zipCode.replace("-", "");
-	const zipNum = Number.parseInt(zip, 10);
-	const group = zip.slice(0, 2);
-	const json = await fetchJson(group);
-
-	if (!json?.c || !json.d) {
-		return null;
-	}
-
-	const entry = json.d.find(([postalCode]) => postalCode === zipNum);
+	const chunk = await fetchJson(zip.slice(0, 2));
+	const entry = findInChunk(chunk, Number.parseInt(zip.slice(2), 10));
 	if (!entry) {
 		return null;
 	}
 
-	const [, prefNum, cityIndex, area] = entry;
-	const city = json.c[cityIndex];
-	const pref = prefs[prefNum - 1];
-
-	if (
-		typeof prefNum !== "number" ||
-		typeof city !== "string" ||
-		typeof pref !== "string" ||
-		cityIndex >= json.c.length ||
-		prefNum < 1 ||
-		prefNum > prefs.length
-	) {
-		throw new Error(`Internal error data broken: ${JSON.stringify(entry)}`);
+	const pref = prefs[entry.prefNum - 1];
+	if (typeof pref !== "string") {
+		throw new Error(`Internal error data broken: prefNum ${entry.prefNum}`);
 	}
 
 	return {
 		pref: pref,
-		prefNum: prefNum,
-		city: city,
-		area: area || undefined,
+		prefNum: entry.prefNum,
+		city: entry.city,
+		area: entry.area || undefined,
 	};
 };
 
-type CompressedPostalData = {
-	c: string[];
-	d: Array<[number, number, number] | [number, number, number, string]>;
-};
-
-const fetchJson = async (chunk: string): Promise<CompressedPostalData> => {
+const fetchJson = async (chunk: string): Promise<ChunkData> => {
 	const { default: json } = await import(`./zips/z${chunk}.json`);
 	return json;
 };

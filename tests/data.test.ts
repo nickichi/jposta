@@ -3,6 +3,7 @@ import { parse } from "csv-parse/sync";
 import { describe, expect, test } from "vitest";
 import { normalizeArea, toEntries } from "../data/normalize";
 import { getAddress } from "../lib";
+import type { ChunkData } from "../lib/chunk";
 
 const records = parse(fs.readFileSync("./data/utf_ken_all.csv", "utf8"), {
 	skip_empty_lines: true,
@@ -106,22 +107,23 @@ describe("lib/zips", () => {
 	const files = fs.readdirSync("./lib/zips").filter((f) => f.endsWith(".json"));
 	const chunks = files.map(
 		(file) =>
-			JSON.parse(fs.readFileSync(`./lib/zips/${file}`, "utf8")) as {
-				d: unknown[];
-			},
+			JSON.parse(fs.readFileSync(`./lib/zips/${file}`, "utf8")) as ChunkData,
 	);
 
 	test("has 100 chunks", () => {
 		expect(files).toHaveLength(100);
 	});
 
-	test.each(files)("%s has sorted unique zip codes", (file) => {
-		const json = JSON.parse(fs.readFileSync(`./lib/zips/${file}`, "utf8"));
-		const chunkZips: number[] = json.d.map(([zip]: [number]) => zip);
-		for (let i = 1; i < chunkZips.length; i++) {
-			expect(chunkZips[i]).toBeGreaterThan(chunkZips[i - 1]);
-		}
-	});
+	test.each(files.map((file, i) => [file, chunks[i]] as const))(
+		"%s has ascending unique zip codes",
+		(_, { d: [first, ...rest] }) => {
+			expect(first[0]).toBeGreaterThanOrEqual(0);
+			expect(typeof first[1]).toBe("number");
+			for (const [delta] of rest) {
+				expect(delta).toBeGreaterThan(0);
+			}
+		},
+	);
 
 	test("contains exactly as many zip codes as the CSV", () => {
 		const total = chunks.reduce((sum, { d }) => sum + d.length, 0);
