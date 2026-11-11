@@ -1,6 +1,6 @@
 {
 	"name": "jposta",
-	"description": "Library for Japanese postal code to address.ES6, Promise based, Typescript ready, React friendly, without any dependencies.",
+	"description": "郵便番号から住所を検索するライブラリ。Library for Japanese postal code to address. ES6, Promise based, TypeScript ready, React friendly, without any dependencies.",
 	"license": "MIT",
 	"version": "0.6.0",
 	"type": "module",
@@ -22,7 +22,14 @@
 		"jposta",
 		"zipcode",
 		"postal-code",
-		"jp"
+		"address",
+		"address-lookup",
+		"japan",
+		"japanese",
+		"jp",
+		"郵便番号",
+		"住所",
+		"住所検索"
 	],
 	"scripts": {
 		"test": "vitest --run",
