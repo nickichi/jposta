@@ -5,8 +5,10 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
+郵便番号から住所（都道府県・市区町村・町域）を検索する JavaScript / TypeScript ライブラリです。
+
 Modern library for converting Japanese postal codes to addresses.
-日本語の補足は最下部にあります。
+日本語の補足は[最下部](#補足)にあります。
 
 ## Features
 
@@ -101,6 +103,7 @@ see [LICENSE](./LICENSE)
 
 ## 補足
 
+- 郵便番号を渡すと都道府県・市区町村・町域を返すので、入力フォームの住所自動入力などに使えます
 - 郵便番号と住所は、[日本郵便株式会社の郵便番号データ](https://www.post.japanpost.jp/zipcode/download.html)を利用しています
 - このライブラリは self-hosted な郵便番号検索を提供するために作成されました。外部 API を使用せず、バックエンドも不要です。ただし、ホストするアセットが 100 個増えます。
 - クライアントサイドでの Dynamic Import を利用したくない場合は、サーバサイド（Node.js）に導入することで、簡単に郵便番号 API を構築できます(Samples 参照)。
